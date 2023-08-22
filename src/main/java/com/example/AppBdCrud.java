@@ -22,16 +22,29 @@ public class AppBdCrud {
             listarTodosEstados(conn); 
             ListarEstadoPorUf(conn, "TO");
 
+//===================================================
             marca = new Marca();
-            marca.setId(1L);
+            marca.setId(2L);
 
             produto = new Produto();
-            produto.setNome("Produto teste 001");
+            produto.setNome("Produto teste 003");
             produto.setMarca(marca);
-            produto.setValor(100);
-
+            produto.setValor(200);            
 
             inserirProduto(conn, produto);
+//==============================================    
+            produto = new Produto();
+            produto.setId(201L);
+
+            excluirProduto(conn, produto);
+//============================================== 
+            produto = new Produto();
+            produto.setNome("Novo nome 203");
+            produto.setValor(203);
+            produto.setId(203L);
+
+            alterarProduto(conn, produto);
+//==============================================   
 
             consultarTabela(conn, "produto");
 
@@ -135,6 +148,7 @@ public class AppBdCrud {
     }
     
     private void inserirProduto(Connection conn, Produto produto) {
+
         try {
             String strSql = "insert into Produto (nome, marca_id, valor) values(?, ?, ?)";
             var statement = conn.prepareStatement(strSql);
@@ -146,8 +160,44 @@ public class AppBdCrud {
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println("Erro na inserção SQL " + e.getMessage());
+            System.out.println("Erro na inserção de produto. " + e.getMessage());
             e.printStackTrace();
         }
-    }  
+    }
+    
+    private void excluirProduto(Connection conn, Produto produto) {
+        try {
+            String strSql = "delete from Produto where id = ?";
+            var statement = conn.prepareStatement(strSql);
+
+            statement.setLong(1, produto.getId());
+
+            statement.executeUpdate();
+
+            if(statement.getUpdateCount() == 0){
+                System.out.println("Nenhuma linha excluída");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro na exclusão de produto." + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void alterarProduto(Connection conn, Produto produto) {
+        try {
+            String strSql = "update Produto set nome = ?, valor = ? where id = ?";
+            var statement = conn.prepareStatement(strSql);
+
+            statement.setString(1, produto.getNome());
+            statement.setDouble(2, produto.getValor());
+            statement.setLong(3, 203);
+
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Erro na exclusão de produto." + e.getMessage());
+            e.printStackTrace();
+        }
+    }     
 }
