@@ -3,22 +3,38 @@ package com.example;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.Statement;
+// import java.sql.Statement;
 import java.sql.SQLException;
 
-public class AppBDRefatorado {
+public class AppBdCrud {
     private static final String USER_NAME = "root";
     private static final String PASSWORD = "root";
     private static final String JDBC = "jdbc:postgresql://172.18.0.2:5432/postgres";
 
     private Connection conn;
 
-    public AppBDRefatorado(){
+    private Produto produto;
+    private Marca marca;
+
+    public AppBdCrud(){
         try {
             conn = getConnection();
             listarTodosEstados(conn); 
             ListarEstadoPorUf(conn, "TO");
-            consultaTabela(conn, "produto");
+
+            marca = new Marca();
+            marca.setId(1L);
+
+            produto = new Produto();
+            produto.setNome("Produto teste 001");
+            produto.setMarca(marca);
+            produto.setValor(100);
+
+
+            inserirProduto(conn, produto);
+
+            consultarTabela(conn, "produto");
+
         } catch (SQLException e) {
             System.out.println("Erro na conexão com o banco de dados: " + e.getMessage());
             e.printStackTrace();
@@ -26,7 +42,7 @@ public class AppBDRefatorado {
     }
 
     public static void main(String[] args) throws SQLException {
-        new AppBDRefatorado();
+        new AppBdCrud();
     }
 
     private void ListarEstadoPorUf(Connection conn, String uf) {
@@ -97,7 +113,7 @@ public class AppBDRefatorado {
         return DriverManager.getConnection(JDBC, USER_NAME, PASSWORD);
     }
 
-    private void consultaTabela(Connection conn, String tableName) {
+    private void consultarTabela(Connection conn, String tableName) {
         try {
             String strSelect = "select * from " + tableName;
             var statement = conn.prepareStatement(strSelect);
@@ -116,5 +132,22 @@ public class AppBDRefatorado {
             System.out.println("Erro na execução do SQL " + e.getMessage());
             e.printStackTrace();
         }
-    }    
+    }
+    
+    private void inserirProduto(Connection conn, Produto produto) {
+        try {
+            String strSql = "insert into Produto (nome, marca_id, valor) values(?, ?, ?)";
+            var statement = conn.prepareStatement(strSql);
+
+            statement.setString(1, produto.getNome());
+            statement.setLong(2, produto.getMarca().getId());
+            statement.setDouble(3, produto.getValor());
+
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Erro na inserção SQL " + e.getMessage());
+            e.printStackTrace();
+        }
+    }  
 }
